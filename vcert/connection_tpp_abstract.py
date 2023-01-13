@@ -101,10 +101,18 @@ class AbstractTPPConnection(CommonConnection):
         request_data = {
             'PolicyDN': self._normalize_zone(zone),
             'ObjectName': request.friendly_name,
-            'DisableAutomaticRenewal': "true"
+            'DisableAutomaticRenewal': "true",
+            'City': request.locality,
+            'State': request.province,
+            'Country': request.country
         }
         zone_config = self.read_zone_conf(zone)
         request.update_from_zone_config(zone_config)
+
+        print('request')
+        print(vars(request))
+        print('request_data')
+        print(request_data)
 
         if request.csr_origin == CSR_ORIGIN_LOCAL:
             request.build_csr()
@@ -215,6 +223,7 @@ class AbstractTPPConnection(CommonConnection):
             except VenafiError as error:
                 log.debug(error.content)
                 status = error.status_code
+                print(f'STATUS: {status}')
                 if status == HTTPStatus.NOT_FOUND:
                     raise RetrieveCertificateNotFoundError(f"Certificate with id {cert_request.id} not found")
                 elif status == HTTPStatus.BAD_REQUEST:
