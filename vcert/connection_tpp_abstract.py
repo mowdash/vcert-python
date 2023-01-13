@@ -109,11 +109,6 @@ class AbstractTPPConnection(CommonConnection):
         zone_config = self.read_zone_conf(zone)
         request.update_from_zone_config(zone_config)
 
-        print('request')
-        print(vars(request))
-        print('request_data')
-        print(request_data)
-
         if request.csr_origin == CSR_ORIGIN_LOCAL:
             request.build_csr()
 
