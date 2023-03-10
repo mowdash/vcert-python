@@ -60,6 +60,7 @@ class URLS:
     CERTIFICATE_RENEW = API_BASE_URL + "certificates/renew"
     CERTIFICATE_SEARCH = API_BASE_URL + "certificates/"
     CERTIFICATE_IMPORT = API_BASE_URL + "certificates/import"
+    CERTIFICATE_DELETE = API_BASE_URL + "certificates/"
     ZONE_CONFIG = API_BASE_URL + "certificates/checkpolicy"
     CONFIG_READ_DN = API_BASE_URL + "Config/ReadDn"
 
@@ -357,6 +358,21 @@ class AbstractTPPConnection(CommonConnection):
 
     def import_cert(self, request):
         raise NotImplementedError
+
+    def search_by_cn(self, cn):
+        '''retrieve cert by CN'''
+        status, data = self._get(URLS.CERTIFICATE_SEARCH, params={'CN': cn})
+        if status != HTTPStatus.OK:
+            raise ServerUnexptedBehavior(f'Unknown error searching for cert by CN')
+        if not data['Certificates']:
+            raise ClientBadData(f'Certificate not found with CN - {cn}')
+        return data['Certificates'][0]['Guid']
+
+    def delete_cert(self, cert_guid):
+        status, data = self._delete(URLS.CERTIFICATE_DELETE + cert_guid)
+        if status in (HTTPStatus.OK, HTTPStatus.ACCEPTED):
+            return data
+        raise ServerUnexptedBehavior
 
     def read_zone_conf(self, tag):
         args = {

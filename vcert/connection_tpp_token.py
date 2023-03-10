@@ -121,6 +121,21 @@ class TPPTokenConnection(AbstractTPPConnection):
             raise ClientBadData
         return self.process_server_response(r)
 
+    def _delete(self, url=None, params=None, check_token=True, include_token_header=True):
+        if check_token:
+            self._check_token()
+
+        headers = {
+            'content-type': MIME_JSON,
+            'cache-control': "no-cache"
+        }
+        if include_token_header:
+            token = self._get_auth_header_value(self._auth.access_token)
+            headers[HEADER_AUTHORIZATION] = token
+
+        r = requests.delete(self._base_url + url, headers=headers, params=params, **self._http_request_kwargs)
+        return self.process_server_response(r)
+    
     def _check_token(self):
         if not self._auth.access_token:
             self.get_access_token()
