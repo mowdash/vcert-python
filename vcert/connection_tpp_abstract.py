@@ -366,7 +366,7 @@ class AbstractTPPConnection(CommonConnection):
             raise ServerUnexptedBehavior(f'Unknown error searching for cert by CN')
         if not data['Certificates']:
             raise ClientBadData(f'Certificate not found with CN - {cn}')
-        return data['Certificates'][0]['Guid']
+        return data['Certificates']
 
     def delete_cert(self, cert_guid):
         status, data = self._delete(URLS.CERTIFICATE_DELETE + cert_guid)
